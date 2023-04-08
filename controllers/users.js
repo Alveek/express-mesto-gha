@@ -1,9 +1,9 @@
-const User = require("../models/user");
+const User = require('../models/user');
 
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch((error) => res.status(500).send(error));
+    .catch(() => res.status(500).send({ message: 'Что-то пошло не так...' }));
 };
 
 const createUser = (req, res) => {
@@ -14,7 +14,12 @@ const createUser = (req, res) => {
       res.send(newUser);
     })
     .catch((error) => {
-      res.status(400).send(error);
+      if (error.name === 'ValidationError') {
+        return res.status(400).send({
+          message: 'Переданы некорректные данные при создании пользователя',
+        });
+      }
+      return res.status(500).send({ message: 'Что-то пошло не так...' });
     });
 };
 
@@ -23,7 +28,14 @@ const getUserById = (req, res) => {
 
   User.findById(userId)
     .then((user) => res.send(user))
-    .catch((error) => res.send(error));
+    .catch((error) => {
+      if (error.name === 'CastError') {
+        return res
+          .status(404)
+          .send({ message: 'Пользователь по указанному _id не найден' });
+      }
+      return res.status(500).send({ message: 'Что-то пошло не так...' });
+    });
 };
 
 const editProfile = (req, res) => {
@@ -32,7 +44,19 @@ const editProfile = (req, res) => {
 
   User.findOneAndUpdate(owner, data, { new: true, runValidators: true })
     .then((user) => res.send(user))
-    .catch((error) => res.send(error));
+    .catch((error) => {
+      if (error.name === 'ValidationError') {
+        return res.status(400).send({
+          message: 'Переданы некорректные данные при обновлении профиля.',
+        });
+      }
+      if (error.name === 'CastError') {
+        return res
+          .status(404)
+          .send({ message: 'Пользователь по указанному _id не найден' });
+      }
+      return res.status(500).send({ message: 'Что-то пошло не так...' });
+    });
 };
 
 const updateAvatar = (req, res) => {
@@ -41,7 +65,19 @@ const updateAvatar = (req, res) => {
 
   User.findOneAndUpdate(owner, avatar, { new: true, runValidators: true })
     .then((user) => res.send(user))
-    .catch((error) => res.send(error));
+    .catch((error) => {
+      if (error.name === 'ValidationError') {
+        return res.status(400).send({
+          message: 'Переданы некорректные данные при обновлении аватара.',
+        });
+      }
+      if (error.name === 'CastError') {
+        return res
+          .status(404)
+          .send({ message: 'Пользователь по указанному _id не найден' });
+      }
+      return res.status(500).send({ message: 'Что-то пошло не так...' });
+    });
 };
 
 module.exports = {
