@@ -35,7 +35,9 @@ const deleteCard = (req, res) => {
     .then((card) => res.send(card))
     .catch((error) => {
       if (error.name === 'CastError') {
-        return res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
+        return res
+          .status(404)
+          .send({ message: 'Карточка с указанным _id не найдена.' });
       }
       return res.status(500).send({ message: 'Что-то пошло не так...' });
     });
@@ -48,7 +50,7 @@ const likeCard = (req, res) => {
   Card.findByIdAndUpdate(
     cardId,
     { $addToSet: { likes: owner } },
-    { new: true, runValidators: true },
+    { new: true, runValidators: true }
   )
     .then((card) => res.send(card))
     .catch((error) => {
@@ -59,7 +61,9 @@ const likeCard = (req, res) => {
       }
 
       if (error.name === 'CastError') {
-        return res.status(404).send({ message: 'Передан несуществующий _id карточки' });
+        return res
+          .status(404)
+          .send({ message: 'Передан несуществующий _id карточки' });
       }
 
       return res.status(500).send({ message: 'Что-то пошло не так...' });
@@ -73,7 +77,7 @@ const dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(
     cardId,
     { $pull: { likes: owner } },
-    { new: true, runValidators: true },
+    { new: true, runValidators: true }
   )
     .then((card) => res.send(card))
     .catch((error) => {
@@ -83,7 +87,9 @@ const dislikeCard = (req, res) => {
         });
       }
       if (error.name === 'CastError') {
-        return res.status(404).send({ message: 'Передан несуществующий _id карточки' });
+        return res
+          .status(404)
+          .send({ message: 'Передан несуществующий _id карточки' });
       }
       return res.status(500).send({ message: 'Что-то пошло не так...' });
     });
