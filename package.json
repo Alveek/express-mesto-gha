@@ -1,7 +1,7 @@
 {
   "name": "express-mesto-gha",
   "version": "1.0.0",
-  "description": "[![Tests](../../actions/workflows/tests-13-sprint.yml/badge.svg)](../../actions/workflows/tests-13-sprint.yml) [![Tests](../../actions/workflows/tests-14-sprint.yml/badge.svg)](../../actions/workflows/tests-14-sprint.yml) # Проект Mesto фронтенд + бэкенд",
+  "description": "Проект Mesto фронтенд + бэкенд",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -9,16 +9,15 @@
     "start": "node app.js",
     "dev": "nodemon app.js"
   },
-  "author": "",
+  "author": "Алексей Кудрявцев",
   "license": "ISC",
   "devDependencies": {
     "eslint": "^8.37.0",
-    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-airbnb": "^19.0.4",
     "eslint-plugin-import": "^2.27.5"
   },
   "dependencies": {
     "body-parser": "^1.20.2",
-    "eslint-config-airbnb": "^19.0.4",
     "express": "^4.18.2",
     "mongoose": "^7.0.3"
   }
