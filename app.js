@@ -19,9 +19,7 @@ app.use((req, res, next) => {
 app.use(router);
 
 app.use((req, res) => {
-  res.status(404);
-  res.json({
-    status: 404,
+  res.status(404).send({
     message: 'Запрошен несуществующий роут',
   });
 });
