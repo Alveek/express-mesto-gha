@@ -5,6 +5,15 @@ const ERROR = 400;
 const ERROR_NOT_FOUND = 404;
 const ERROR_DEFAULT = 500;
 
+const checkCard = (card, res) => {
+  if (card) {
+    return res.send(card);
+  }
+  return res
+    .status(ERROR_NOT_FOUND)
+    .send({ message: 'Карточка с указанным _id не найдена.' });
+};
+
 const getCards = (req, res) => {
   Card.find({})
     .populate('owner')
@@ -44,20 +53,17 @@ const deleteCard = (req, res) => {
   const isValidId = mongoose.Types.ObjectId.isValid(cardId);
 
   Card.deleteOne({ _id: cardId })
-    .then((card) => res.send(card))
-    .catch((error) => {
-      if (!isValidId) {
-        return res.status(ERROR).send({ message: 'Некорректный _id' });
-      }
-      if (error.name === 'ValidationError') {
-        return res.status(ERROR).send({
-          message: 'Переданы некорректные данные удалении карточки.',
-        });
-      }
-      if (error.name === 'CastError') {
+    .then((card) => {
+      if (card.deletedCount === 0) {
         return res
           .status(ERROR_NOT_FOUND)
           .send({ message: 'Карточка с указанным _id не найдена.' });
+      }
+      return res.send(card);
+    })
+    .catch(() => {
+      if (!isValidId) {
+        return res.status(ERROR).send({ message: 'Некорректный _id' });
       }
       return res
         .status(ERROR_DEFAULT)
@@ -75,20 +81,10 @@ const likeCard = (req, res) => {
     { $addToSet: { likes: owner } },
     { new: true, runValidators: true }
   )
-    .then((card) => res.send(card))
-    .catch((error) => {
+    .then((card) => checkCard(card, res))
+    .catch(() => {
       if (!isValidId) {
         return res.status(ERROR).send({ message: 'Некорректный _id' });
-      }
-      if (error.name === 'ValidationError') {
-        return res.status(ERROR).send({
-          message: 'Переданы некорректные данные для постановки/снятии лайка.',
-        });
-      }
-      if (error.name === 'CastError') {
-        return res
-          .status(ERROR_NOT_FOUND)
-          .send({ message: 'Передан несуществующий _id карточки' });
       }
       return res
         .status(ERROR_DEFAULT)
@@ -106,20 +102,10 @@ const dislikeCard = (req, res) => {
     { $pull: { likes: owner } },
     { new: true, runValidators: true }
   )
-    .then((card) => res.send(card))
-    .catch((error) => {
+    .then((card) => checkCard(card, res))
+    .catch(() => {
       if (!isValidId) {
         return res.status(ERROR).send({ message: 'Некорректный _id' });
-      }
-      if (error.name === 'ValidationError') {
-        return res.status(ERROR).send({
-          message: 'Переданы некорректные данные для постановки/снятии лайка.',
-        });
-      }
-      if (error.name === 'CastError') {
-        return res
-          .status(ERROR_NOT_FOUND)
-          .send({ message: 'Передан несуществующий _id карточки' });
       }
       return res
         .status(ERROR_DEFAULT)

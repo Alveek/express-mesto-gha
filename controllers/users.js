@@ -5,6 +5,15 @@ const ERROR = 400;
 const ERROR_NOT_FOUND = 404;
 const ERROR_DEFAULT = 500;
 
+const checkUser = (user, res) => {
+  if (user) {
+    return res.send(user);
+  }
+  return res
+    .status(ERROR_NOT_FOUND)
+    .send({ message: 'Пользователь по указанному _id не найден' });
+};
+
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
@@ -39,20 +48,10 @@ const getUserById = (req, res) => {
   const isValidId = mongoose.Types.ObjectId.isValid(userId);
 
   User.findById(userId)
-    .then((user) => res.send(user))
-    .catch((error) => {
+    .then((user) => checkUser(user, res))
+    .catch(() => {
       if (!isValidId) {
         return res.status(ERROR).send({ message: 'Некорректный _id' });
-      }
-      if (error.name === 'ValidationError') {
-        return res.status(ERROR).send({
-          message: 'Переданы некорректные данные при получении пользователя.',
-        });
-      }
-      if (error.name === 'CastError') {
-        return res
-          .status(ERROR_NOT_FOUND)
-          .send({ message: 'Пользователь по указанному _id не найден' });
       }
       return res
         .status(ERROR_DEFAULT)
@@ -65,17 +64,12 @@ const editProfile = (req, res) => {
   const data = req.body;
 
   User.findOneAndUpdate(owner, data, { new: true, runValidators: true })
-    .then((user) => res.send(user))
+    .then((user) => checkUser(user, res))
     .catch((error) => {
       if (error.name === 'ValidationError') {
         return res.status(ERROR).send({
           message: 'Переданы некорректные данные при обновлении профиля.',
         });
-      }
-      if (error.name === 'CastError') {
-        return res
-          .status(ERROR_NOT_FOUND)
-          .send({ message: 'Пользователь по указанному _id не найден' });
       }
       return res
         .status(ERROR_DEFAULT)
@@ -88,17 +82,12 @@ const updateAvatar = (req, res) => {
   const avatar = req.body;
 
   User.findOneAndUpdate(owner, avatar, { new: true, runValidators: true })
-    .then((user) => res.send(user))
+    .then((user) => checkUser(user, res))
     .catch((error) => {
       if (error.name === 'ValidationError') {
         return res.status(ERROR).send({
           message: 'Переданы некорректные данные при обновлении аватара.',
         });
-      }
-      if (error.name === 'CastError') {
-        return res
-          .status(ERROR_NOT_FOUND)
-          .send({ message: 'Пользователь по указанному _id не найден' });
       }
       return res
         .status(ERROR_DEFAULT)

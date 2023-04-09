@@ -18,6 +18,15 @@ app.use((req, res, next) => {
 
 app.use(router);
 
+app.use((req, res) => {
+  res.status(404);
+  res.json({
+    status: 404,
+    title: 'Страница не найдена',
+    msg: 'Запрошен несуществующий роут',
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`start server on port ${PORT}`);
 });
