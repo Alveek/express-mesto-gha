@@ -34,11 +34,16 @@ const createUser = (req, res) => {
 
 const getUserById = (req, res) => {
   const { userId } = req.params;
+  const isValidId = mongoose.Types.ObjectId.isValid(userId);
 
   User.findById(userId)
     .then((user) => res.send(user))
     .catch((error) => {
-      if (error.name === 'CastError') {
+      if (error.name === 'ValidationError') {
+        return res.status(ERROR).send({
+          message: 'Переданы некорректные данные при обновлении профиля.',
+        });
+      } else if (!isValidId) {
         return res
           .status(ERROR_NOT_FOUND)
           .send({ message: 'Пользователь по указанному _id не найден' });
