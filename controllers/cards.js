@@ -46,13 +46,13 @@ const deleteCard = (req, res) => {
   Card.deleteOne({ _id: cardId })
     .then((card) => res.send(card))
     .catch((error) => {
+      if (!isValidId) {
+        return res.status(ERROR).send({ message: 'Некорректный _id' });
+      }
       if (error.name === 'ValidationError') {
         return res.status(ERROR).send({
           message: 'Переданы некорректные данные удалении карточки.',
         });
-      }
-      if (!isValidId) {
-        return res.status(ERROR).send({ message: 'Некорректный _id' });
       }
       if (error.name === 'CastError') {
         return res
@@ -77,6 +77,9 @@ const likeCard = (req, res) => {
   )
     .then((card) => res.send(card))
     .catch((error) => {
+      if (!isValidId) {
+        return res.status(ERROR).send({ message: 'Некорректный _id' });
+      }
       if (error.name === 'ValidationError') {
         return res.status(ERROR).send({
           message: 'Переданы некорректные данные для постановки/снятии лайка.',
@@ -86,9 +89,6 @@ const likeCard = (req, res) => {
         return res
           .status(ERROR_NOT_FOUND)
           .send({ message: 'Передан несуществующий _id карточки' });
-      }
-      if (!isValidId) {
-        return res.status(ERROR).send({ message: 'Некорректный _id' });
       }
       return res
         .status(ERROR_DEFAULT)
@@ -108,6 +108,9 @@ const dislikeCard = (req, res) => {
   )
     .then((card) => res.send(card))
     .catch((error) => {
+      if (!isValidId) {
+        return res.status(ERROR).send({ message: 'Некорректный _id' });
+      }
       if (error.name === 'ValidationError') {
         return res.status(ERROR).send({
           message: 'Переданы некорректные данные для постановки/снятии лайка.',
@@ -117,9 +120,6 @@ const dislikeCard = (req, res) => {
         return res
           .status(ERROR_NOT_FOUND)
           .send({ message: 'Передан несуществующий _id карточки' });
-      }
-      if (!isValidId) {
-        return res.status(ERROR).send({ message: 'Некорректный _id' });
       }
       return res
         .status(ERROR_DEFAULT)

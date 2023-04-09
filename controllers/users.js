@@ -41,13 +41,13 @@ const getUserById = (req, res) => {
   User.findById(userId)
     .then((user) => res.send(user))
     .catch((error) => {
+      if (!isValidId) {
+        return res.status(ERROR).send({ message: 'Некорректный _id' });
+      }
       if (error.name === 'ValidationError') {
         return res.status(ERROR).send({
           message: 'Переданы некорректные данные при получении пользователя.',
         });
-      }
-      if (!isValidId) {
-        return res.status(ERROR).send({ message: 'Некорректный _id' });
       }
       if (error.name === 'CastError') {
         return res
