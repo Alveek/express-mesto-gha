@@ -29,7 +29,7 @@ const createCard = (req, res) => {
     })
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        return res.status(ERROR_NOT_FOUND).send({
+        return res.status(ERROR).send({
           message: 'Переданы некорректные данные при создании карточки.',
         });
       }
@@ -52,6 +52,9 @@ const deleteCard = (req, res) => {
         });
       }
       if (!isValidId) {
+        return res.status(ERROR).send({ message: 'Некорректный _id' });
+      }
+      if (error.name === 'CastError') {
         return res
           .status(ERROR_NOT_FOUND)
           .send({ message: 'Карточка с указанным _id не найдена.' });
@@ -79,10 +82,13 @@ const likeCard = (req, res) => {
           message: 'Переданы некорректные данные для постановки/снятии лайка.',
         });
       }
-      if (!isValidId) {
+      if (error.name === 'CastError') {
         return res
           .status(ERROR_NOT_FOUND)
           .send({ message: 'Передан несуществующий _id карточки' });
+      }
+      if (!isValidId) {
+        return res.status(ERROR).send({ message: 'Некорректный _id' });
       }
       return res
         .status(ERROR_DEFAULT)
@@ -107,10 +113,13 @@ const dislikeCard = (req, res) => {
           message: 'Переданы некорректные данные для постановки/снятии лайка.',
         });
       }
-      if (!isValidId) {
+      if (error.name === 'CastError') {
         return res
           .status(ERROR_NOT_FOUND)
           .send({ message: 'Передан несуществующий _id карточки' });
+      }
+      if (!isValidId) {
+        return res.status(ERROR).send({ message: 'Некорректный _id' });
       }
       return res
         .status(ERROR_DEFAULT)

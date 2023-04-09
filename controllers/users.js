@@ -43,10 +43,13 @@ const getUserById = (req, res) => {
     .catch((error) => {
       if (error.name === 'ValidationError') {
         return res.status(ERROR).send({
-          message: 'Переданы некорректные данные при обновлении профиля.',
+          message: 'Переданы некорректные данные при получении пользователя.',
         });
       }
       if (!isValidId) {
+        return res.status(ERROR).send({ message: 'Некорректный _id' });
+      }
+      if (error.name === 'CastError') {
         return res
           .status(ERROR_NOT_FOUND)
           .send({ message: 'Пользователь по указанному _id не найден' });
