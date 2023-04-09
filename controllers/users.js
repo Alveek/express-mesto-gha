@@ -1,9 +1,15 @@
 const User = require('../models/user');
 
+const ERROR = 400;
+const ERROR_NOT_FOUND = 404;
+const ERROR_DEFAULT = 500;
+
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => res.status(500).send({ message: 'Что-то пошло не так...' }));
+    .catch(() =>
+      res.status(ERROR_DEFAULT).send({ message: 'На сервере произошла ошибка' })
+    );
 };
 
 const createUser = (req, res) => {
@@ -15,11 +21,14 @@ const createUser = (req, res) => {
     })
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        return res.status(400).send({
+        return res.status(ERROR).send({
           message: 'Переданы некорректные данные при создании пользователя',
         });
+      } else {
+        return res
+          .status(ERROR_DEFAULT)
+          .send({ message: 'На сервере произошла ошибка' });
       }
-      return res.status(500).send({ message: 'Что-то пошло не так...' });
     });
 };
 
@@ -31,10 +40,13 @@ const getUserById = (req, res) => {
     .catch((error) => {
       if (error.name === 'CastError') {
         return res
-          .status(404)
+          .status(ERROR_NOT_FOUND)
           .send({ message: 'Пользователь по указанному _id не найден' });
+      } else {
+        return res
+          .status(ERROR_DEFAULT)
+          .send({ message: 'На сервере произошла ошибка' });
       }
-      return res.status(500).send({ message: 'Что-то пошло не так...' });
     });
 };
 
@@ -46,16 +58,18 @@ const editProfile = (req, res) => {
     .then((user) => res.send(user))
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        return res.status(400).send({
+        return res.status(ERROR).send({
           message: 'Переданы некорректные данные при обновлении профиля.',
         });
-      }
-      if (error.name === 'CastError') {
+      } else if (error.name === 'CastError') {
         return res
-          .status(404)
+          .status(ERROR_NOT_FOUND)
           .send({ message: 'Пользователь по указанному _id не найден' });
+      } else {
+        return res
+          .status(ERROR_DEFAULT)
+          .send({ message: 'На сервере произошла ошибка' });
       }
-      return res.status(500).send({ message: 'Что-то пошло не так...' });
     });
 };
 
@@ -67,16 +81,18 @@ const updateAvatar = (req, res) => {
     .then((user) => res.send(user))
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        return res.status(400).send({
+        return res.status(ERROR).send({
           message: 'Переданы некорректные данные при обновлении аватара.',
         });
-      }
-      if (error.name === 'CastError') {
+      } else if (error.name === 'CastError') {
         return res
-          .status(404)
+          .status(ERROR_NOT_FOUND)
           .send({ message: 'Пользователь по указанному _id не найден' });
+      } else {
+        return res
+          .status(ERROR_DEFAULT)
+          .send({ message: 'На сервере произошла ошибка' });
       }
-      return res.status(500).send({ message: 'Что-то пошло не так...' });
     });
 };
 
