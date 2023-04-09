@@ -1,9 +1,5 @@
-const mongoose = require('mongoose');
 const User = require('../models/user');
-
-const ERROR = 400;
-const ERROR_NOT_FOUND = 404;
-const ERROR_DEFAULT = 500;
+const { ERROR, ERROR_NOT_FOUND, ERROR_DEFAULT } = require('../utils/constants');
 
 const checkUser = (user, res) => {
   if (user) {
@@ -45,12 +41,11 @@ const createUser = (req, res) => {
 
 const getUserById = (req, res) => {
   const { userId } = req.params;
-  const isValidId = mongoose.Types.ObjectId.isValid(userId);
 
   User.findById(userId)
     .then((user) => checkUser(user, res))
-    .catch(() => {
-      if (!isValidId) {
+    .catch((error) => {
+      if (error.name === 'CastError') {
         return res.status(ERROR).send({ message: 'Некорректный _id' });
       }
       return res
@@ -61,9 +56,13 @@ const getUserById = (req, res) => {
 
 const editProfile = (req, res) => {
   const owner = req.user._id;
-  const data = req.body;
+  const { name, about } = req.body;
 
-  User.findOneAndUpdate(owner, data, { new: true, runValidators: true })
+  User.findByIdAndUpdate(
+    owner,
+    { name, about },
+    { new: true, runValidators: true }
+  )
     .then((user) => checkUser(user, res))
     .catch((error) => {
       if (error.name === 'ValidationError') {
@@ -81,7 +80,7 @@ const updateAvatar = (req, res) => {
   const owner = req.user._id;
   const avatar = req.body;
 
-  User.findOneAndUpdate(owner, avatar, { new: true, runValidators: true })
+  User.findByIdAndUpdate(owner, avatar, { new: true, runValidators: true })
     .then((user) => checkUser(user, res))
     .catch((error) => {
       if (error.name === 'ValidationError') {

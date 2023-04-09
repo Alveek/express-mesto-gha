@@ -1,9 +1,5 @@
-const mongoose = require('mongoose');
 const Card = require('../models/card');
-
-const ERROR = 400;
-const ERROR_NOT_FOUND = 404;
-const ERROR_DEFAULT = 500;
+const { ERROR, ERROR_NOT_FOUND, ERROR_DEFAULT } = require('../utils/constants');
 
 const checkCard = (card, res) => {
   if (card) {
@@ -16,8 +12,6 @@ const checkCard = (card, res) => {
 
 const getCards = (req, res) => {
   Card.find({})
-    .populate('owner')
-    .populate('likes')
     .then((cards) => {
       res.send(cards);
     })
@@ -50,7 +44,6 @@ const createCard = (req, res) => {
 
 const deleteCard = (req, res) => {
   const { cardId } = req.params;
-  const isValidId = mongoose.Types.ObjectId.isValid(cardId);
 
   Card.deleteOne({ _id: cardId })
     .then((card) => {
@@ -59,10 +52,10 @@ const deleteCard = (req, res) => {
           .status(ERROR_NOT_FOUND)
           .send({ message: 'Карточка с указанным _id не найдена.' });
       }
-      return res.send(card);
+      return res.send({ message: 'Карточка удалена' });
     })
-    .catch(() => {
-      if (!isValidId) {
+    .catch((error) => {
+      if (error.name === 'CastError') {
         return res.status(ERROR).send({ message: 'Некорректный _id' });
       }
       return res
@@ -74,7 +67,6 @@ const deleteCard = (req, res) => {
 const likeCard = (req, res) => {
   const owner = req.user._id;
   const { cardId } = req.params;
-  const isValidId = mongoose.Types.ObjectId.isValid(cardId);
 
   Card.findByIdAndUpdate(
     cardId,
@@ -82,8 +74,8 @@ const likeCard = (req, res) => {
     { new: true, runValidators: true }
   )
     .then((card) => checkCard(card, res))
-    .catch(() => {
-      if (!isValidId) {
+    .catch((error) => {
+      if (error.name === 'CastError') {
         return res.status(ERROR).send({ message: 'Некорректный _id' });
       }
       return res
@@ -95,7 +87,6 @@ const likeCard = (req, res) => {
 const dislikeCard = (req, res) => {
   const owner = req.user._id;
   const { cardId } = req.params;
-  const isValidId = mongoose.Types.ObjectId.isValid(cardId);
 
   Card.findByIdAndUpdate(
     cardId,
@@ -103,8 +94,8 @@ const dislikeCard = (req, res) => {
     { new: true, runValidators: true }
   )
     .then((card) => checkCard(card, res))
-    .catch(() => {
-      if (!isValidId) {
+    .catch((error) => {
+      if (error.name === 'CastError') {
         return res.status(ERROR).send({ message: 'Некорректный _id' });
       }
       return res

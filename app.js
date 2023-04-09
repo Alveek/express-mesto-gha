@@ -22,7 +22,6 @@ app.use((req, res) => {
   res.status(404);
   res.json({
     status: 404,
-    title: 'Страница не найдена',
     message: 'Запрошен несуществующий роут',
   });
 });
