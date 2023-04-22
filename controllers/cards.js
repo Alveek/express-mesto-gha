@@ -1,5 +1,4 @@
 const Card = require('../models/card');
-const { ERROR, ERROR_NOT_FOUND, ERROR_DEFAULT } = require('../utils/constants');
 
 const checkCard = (card, res) => {
   if (card) {

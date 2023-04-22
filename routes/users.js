@@ -1,5 +1,6 @@
 const usersRouter = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
+const { urlRegEx } = require('../utils/utils');
 
 const {
   getUsers,
@@ -41,7 +42,7 @@ usersRouter.patch(
   '/me/avatar',
   celebrate({
     body: Joi.object({
-      avatar: Joi.string().uri().message('Невалидный url'),
+      avatar: Joi.string().regex(urlRegEx).message('Неверная ссылка'),
     }),
   }),
   updateAvatar
