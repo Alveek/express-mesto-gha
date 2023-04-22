@@ -45,9 +45,11 @@ cardsRouter.delete(
       cardId: Joi.string().hex().length(24).messages({
         'string.hex': 'Некорректный id',
       }),
+    }),
   }),
   deleteCard
 );
+
 cardsRouter.put(
   '/:cardId/likes',
   celebrate({
