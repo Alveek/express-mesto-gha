@@ -42,8 +42,9 @@ cardsRouter.delete(
   authDelete,
   celebrate({
     params: Joi.object({
-      cardId: Joi.objectId(),
-    }),
+      cardId: Joi.string().hex().length(24).messages({
+        'string.hex': 'Некорректный id',
+      }),
   }),
   deleteCard
 );
