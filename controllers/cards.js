@@ -37,6 +37,7 @@ const createCard = (req, res, next) => {
 };
 
 const deleteCard = (req, res, next) => {
+  console.log('im here!!');
   const { cardId } = req.params;
 
   Card.deleteOne({ _id: cardId })
