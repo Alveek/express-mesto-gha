@@ -1,7 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const { ERROR, ERROR_NOT_FOUND, ERROR_DEFAULT } = require('../utils/constants');
 const errors = require('../errors');
 
 const checkUser = (user, res) => {
@@ -11,18 +10,18 @@ const checkUser = (user, res) => {
   return res.send(user);
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
 
   User.findOne({ email })
     .select('+password')
     .then((user) => {
       if (!user) {
-        return Promise.reject(new Error('Неправильные почта или пароль'));
+        throw new errors.Unauthorized('Неправильные почта или пароль');
       }
       return bcrypt.compare(password, user.password).then((matched) => {
         if (!matched) {
-          return Promise.reject(new Error('Неправильные почта или пароль'));
+          throw new errors.Unauthorized('Неправильные почта или пароль');
         }
         const token = jwt.sign({ _id: user._id }, 'some-secret-key', {
           expiresIn: '7d',
@@ -30,25 +29,19 @@ const login = (req, res) => {
         return res.send({ token });
       });
     })
-    .catch((err) => {
-      res.status(401).send({ message: err.message });
-    });
+    .catch(next);
 };
 
-const getMe = (req, res) => {
+const getMe = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => res.send(user))
-    .catch((err) => console.log(err));
+    .catch(next);
 };
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => {
-      res
-        .status(ERROR_DEFAULT)
-        .send({ message: 'На сервере произошла ошибка' });
-    });
+    .catch(next);
 };
 
 const createUser = (req, res, next) => {
@@ -76,15 +69,6 @@ const createUser = (req, res, next) => {
             )
           );
         }
-
-        // if (error.name === 'ValidationError') {
-        //   return res.status(ERROR).send({
-        //     message: 'Переданы некорректные данные при создании пользователя',
-        //   });
-        // }
-        // return res
-        //   .status(ERROR_DEFAULT)
-        //   .send({ message: 'На сервере произошла ошибка' });
       });
   });
 };

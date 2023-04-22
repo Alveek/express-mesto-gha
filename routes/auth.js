@@ -1,7 +1,6 @@
 const authRouter = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 const { login, createUser } = require('../controllers/users');
-const { mongoose } = require('mongoose');
 
 authRouter.post(
   '/signin',

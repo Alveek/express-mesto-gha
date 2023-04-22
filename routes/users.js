@@ -21,7 +21,30 @@ usersRouter.get(
   getUserById
 );
 
-usersRouter.patch('/me', editProfile);
-usersRouter.patch('/me/avatar', updateAvatar);
+usersRouter.patch(
+  '/me',
+  celebrate({
+    body: Joi.object({
+      name: Joi.string()
+        .min(2)
+        .max(30)
+        .message('Имя должно быть от 2 до 30 символов'),
+      about: Joi.string()
+        .min(2)
+        .max(30)
+        .message('Это поле должно быть от 2 до 30 символов'),
+    }),
+  }),
+  editProfile
+);
+usersRouter.patch(
+  '/me/avatar',
+  celebrate({
+    body: Joi.object({
+      avatar: Joi.string().uri().message('Невалидный url'),
+    }),
+  }),
+  updateAvatar
+);
 
 module.exports = usersRouter;
