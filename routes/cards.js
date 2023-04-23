@@ -1,5 +1,7 @@
+const mongoose = require('mongoose');
 const cardsRouter = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
+Joi.objectId = require('joi-objectid')(Joi);
 const { urlRegEx } = require('../utils/utils');
 
 const {
