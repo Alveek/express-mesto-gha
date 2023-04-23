@@ -1,11 +1,11 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const validationError = require('../errors');
+const customError = require('../errors');
 
 const checkUser = (user, res) => {
   if (!user) {
-    throw new validationError.NotFound('Нет пользователя с таким id');
+    throw new customError.NotFound('Нет пользователя с таким id');
   }
   return res.send(user);
 };
@@ -17,12 +17,12 @@ const login = (req, res, next) => {
     .select('+password')
     .then((user) => {
       if (!user) {
-        throw new validationError.Unauthorized('Неправильные почта или пароль');
+        throw new customError.Unauthorized('Неверные почта или пароль');
       }
       return bcrypt.compare(password, user.password).then((matched) => {
         if (!matched) {
-          throw new validationError.Unauthorized(
-            'Неправильные почта или пароль'
+          return next(
+            new customError.Unauthorized('Неверные почта или пароль')
           );
         }
         const token = jwt.sign({ _id: user._id }, 'some-secret-key', {
@@ -66,8 +66,8 @@ const createUser = (req, res, next) => {
       .catch((error) => {
         if (error.code === 11000) {
           next(
-            new validationError.Conflict(
-              'Пользователь с таким имейл уже зарегистрирвован'
+            new customError.Conflict(
+              'Пользователь с такой почтой уже зарегистрирвован'
             )
           );
         }
@@ -97,10 +97,8 @@ const editProfile = (req, res, next) => {
     .then((user) => checkUser(user, res))
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        next(
-          new validationError.BadRequest(
-            'Переданы некорректные данные при обновлении профиля.'
-          )
+        throw new customError.BadRequest(
+          'Переданы некорректные данные при обновлении профиля.'
         );
       }
       next(error);
@@ -115,10 +113,8 @@ const updateAvatar = (req, res, next) => {
     .then((user) => checkUser(user, res))
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        next(
-          new validationError.BadRequest(
-            'Переданы некорректные данные при обновлении профиля.'
-          )
+        throw new customError.BadRequest(
+          'Переданы некорректные данные при обновлении профиля.'
         );
       }
       next(error);

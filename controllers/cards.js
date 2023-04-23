@@ -1,9 +1,9 @@
 const Card = require('../models/card');
-const validationError = require('../errors');
+const customError = require('../errors');
 
 const checkCard = (card, res) => {
   if (!card) {
-    throw new validationError.NotFound('Нет карточки с таким id');
+    throw new customError.NotFound('Нет карточки с таким id');
   }
   return res.send(card);
 };
@@ -27,7 +27,7 @@ const createCard = (req, res, next) => {
     .catch((error) => {
       if (error.name === 'ValidationError') {
         next(
-          new validationError.BadRequest(
+          new customError.BadRequest(
             'Переданы некорректные данные при создании карточки.'
           )
         );
@@ -42,9 +42,7 @@ const deleteCard = (req, res, next) => {
   Card.deleteOne({ _id: cardId })
     .then((card) => {
       if (card.deletedCount === 0) {
-        throw new validationError.NotFound(
-          'Карточка с указанным _id не найдена.'
-        );
+        throw new customError.NotFound('Карточка с указанным _id не найдена.');
       }
       return res.send({ message: 'Карточка удалена' });
     })
