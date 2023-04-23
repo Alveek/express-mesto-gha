@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { urlRegEx } = require('../utils/utils');
+const { urlRegEx } = require('../utils/constants');
 
 const cardSchema = new mongoose.Schema({
   name: {

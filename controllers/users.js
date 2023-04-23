@@ -2,48 +2,13 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const customError = require('../errors');
+const { JWT_SECRET } = require('../utils/constants');
 
 const checkUser = (user, res) => {
   if (!user) {
     throw new customError.NotFound('Нет пользователя с таким id');
   }
   return res.send(user);
-};
-
-const login = (req, res, next) => {
-  const { email, password } = req.body;
-
-  User.findOne({ email })
-    .select('+password')
-    .then((user) => {
-      if (!user) {
-        throw new customError.Unauthorized('Неверные почта или пароль');
-      }
-      return bcrypt.compare(password, user.password).then((matched) => {
-        if (!matched) {
-          return next(
-            new customError.Unauthorized('Неверные почта или пароль')
-          );
-        }
-        const token = jwt.sign({ _id: user._id }, 'some-secret-key', {
-          expiresIn: '7d',
-        });
-        return res.send({ token });
-      });
-    })
-    .catch(next);
-};
-
-const getMe = (req, res, next) => {
-  User.findById(req.user._id)
-    .then((user) => res.send(user))
-    .catch(next);
-};
-
-const getUsers = (req, res, next) => {
-  User.find({})
-    .then((users) => res.send({ data: users }))
-    .catch(next);
 };
 
 const createUser = (req, res, next) => {
@@ -75,6 +40,40 @@ const createUser = (req, res, next) => {
   });
 };
 
+const login = (req, res, next) => {
+  const { email, password } = req.body;
+
+  User.findOne({ email })
+    .select('+password')
+    .then((user) => {
+      if (!user) {
+        throw new customError.Unauthorized('Неверные почта или пароль');
+      }
+      return bcrypt.compare(password, user.password).then((matched) => {
+        if (!matched) {
+          next(new customError.Unauthorized('Неверные почта или пароль'));
+        }
+        const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+          expiresIn: '7d',
+        });
+        return res.send({ token });
+      });
+    })
+    .catch(next);
+};
+
+const getMe = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => res.send(user))
+    .catch(next);
+};
+
+const getUsers = (req, res, next) => {
+  User.find({})
+    .then((users) => res.send({ data: users }))
+    .catch(next);
+};
+
 const getUserById = (req, res, next) => {
   const { userId } = req.params;
 
@@ -95,14 +94,7 @@ const editProfile = (req, res, next) => {
     { new: true, runValidators: true }
   )
     .then((user) => checkUser(user, res))
-    .catch((error) => {
-      if (error.name === 'ValidationError') {
-        throw new customError.BadRequest(
-          'Переданы некорректные данные при обновлении профиля.'
-        );
-      }
-      next(error);
-    });
+    .catch(next);
 };
 
 const updateAvatar = (req, res, next) => {
@@ -111,14 +103,7 @@ const updateAvatar = (req, res, next) => {
 
   User.findByIdAndUpdate(owner, avatar, { new: true, runValidators: true })
     .then((user) => checkUser(user, res))
-    .catch((error) => {
-      if (error.name === 'ValidationError') {
-        throw new customError.BadRequest(
-          'Переданы некорректные данные при обновлении профиля.'
-        );
-      }
-      next(error);
-    });
+    .catch(next);
 };
 
 module.exports = {
