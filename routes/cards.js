@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const cardsRouter = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
 Joi.objectId = require('joi-objectid')(Joi);
@@ -37,9 +38,9 @@ cardsRouter.post(
   }),
   createCard
 );
+
 cardsRouter.delete(
   '/:cardId',
-  authDelete,
   celebrate({
     params: Joi.object({
       cardId: Joi.string().hex().length(24).messages({
@@ -47,6 +48,7 @@ cardsRouter.delete(
       }),
     }),
   }),
+  authDelete,
   deleteCard
 );
 
@@ -74,3 +76,12 @@ cardsRouter.delete(
 );
 
 module.exports = cardsRouter;
+
+// params: Joi.object({
+//   cardId: Joi.string().custom((value, helper) => {
+//     if (!mongoose.Types.ObjectId.isValid(value)) {
+//       return helper.message('Некорректный id');
+//     }
+//     return value;
+//   }),
+// }),

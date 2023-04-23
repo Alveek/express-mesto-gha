@@ -19,16 +19,16 @@ app.use(authRouter);
 app.use(auth);
 app.use(router);
 
-// app.use((req, res) => {
-//   res.status(404).send({
-//     message: 'Запрошен несуществующий роут',
-//   });
-// });
 app.use(errors());
+
+app.use((req, res) => {
+  res.status(404).send({
+    message: 'Запрошен несуществующий роут',
+  });
+});
 
 app.use((err, req, res, next) => {
   console.log(err);
-  // если у ошибки нет статуса, выставляем 500
   const { statusCode = 500, message } = err;
 
   res.status(statusCode).send({
