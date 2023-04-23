@@ -1,11 +1,11 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const errors = require('../errors');
+const validationError = require('../errors');
 
 const checkUser = (user, res) => {
   if (!user) {
-    throw new errors.NotFound('Нет пользователя с таким id');
+    throw new validationError.NotFound('Нет пользователя с таким id');
   }
   return res.send(user);
 };
@@ -17,11 +17,13 @@ const login = (req, res, next) => {
     .select('+password')
     .then((user) => {
       if (!user) {
-        throw new errors.Unauthorized('Неправильные почта или пароль');
+        throw new validationError.Unauthorized('Неправильные почта или пароль');
       }
       return bcrypt.compare(password, user.password).then((matched) => {
         if (!matched) {
-          throw new errors.Unauthorized('Неправильные почта или пароль');
+          throw new validationError.Unauthorized(
+            'Неправильные почта или пароль'
+          );
         }
         const token = jwt.sign({ _id: user._id }, 'some-secret-key', {
           expiresIn: '7d',
@@ -64,7 +66,7 @@ const createUser = (req, res, next) => {
       .catch((error) => {
         if (error.code === 11000) {
           next(
-            new errors.Conflict(
+            new validationError.Conflict(
               'Пользователь с таким имейл уже зарегистрирвован'
             )
           );
@@ -79,17 +81,11 @@ const getUserById = (req, res, next) => {
   User.findById(userId)
     .then((user) => checkUser(user, res))
     .catch((error) => {
-      //   if (error.name === 'CastError') {
-      //     return res.status(ERROR).send({ message: 'Некорректный _id' });
-      //   }
-      //   return res
-      //     .status(ERROR_DEFAULT)
-      //     .send({ message: 'На сервере произошла ошибка' });
       next(error);
     });
 };
 
-const editProfile = (req, res) => {
+const editProfile = (req, res, next) => {
   const owner = req.user._id;
   const { name, about } = req.body;
 
@@ -101,17 +97,17 @@ const editProfile = (req, res) => {
     .then((user) => checkUser(user, res))
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        return res.status(ERROR).send({
-          message: 'Переданы некорректные данные при обновлении профиля.',
-        });
+        next(
+          new validationError.BadRequest(
+            'Переданы некорректные данные при обновлении профиля.'
+          )
+        );
       }
-      return res
-        .status(ERROR_DEFAULT)
-        .send({ message: 'На сервере произошла ошибка' });
+      next(error);
     });
 };
 
-const updateAvatar = (req, res) => {
+const updateAvatar = (req, res, next) => {
   const owner = req.user._id;
   const avatar = req.body;
 
@@ -119,13 +115,13 @@ const updateAvatar = (req, res) => {
     .then((user) => checkUser(user, res))
     .catch((error) => {
       if (error.name === 'ValidationError') {
-        return res.status(ERROR).send({
-          message: 'Переданы некорректные данные при обновлении аватара.',
-        });
+        next(
+          new validationError.BadRequest(
+            'Переданы некорректные данные при обновлении профиля.'
+          )
+        );
       }
-      return res
-        .status(ERROR_DEFAULT)
-        .send({ message: 'На сервере произошла ошибка' });
+      next(error);
     });
 };
 
