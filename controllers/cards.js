@@ -10,6 +10,7 @@ const checkCard = (card, res) => {
 
 const getCards = (req, res, next) => {
   Card.find({})
+    .populate(['owner', 'likes'])
     .then((cards) => {
       res.send(cards);
     })
