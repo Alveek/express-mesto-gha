@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
+const cors = require('./middlewares/cors');
 const authRouter = require('./routes/auth');
 const router = require('./routes');
 const auth = require('./middlewares/auth');
@@ -16,14 +17,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(requestLogger);
-
+app.use(cors);
 app.use(authRouter);
-
 app.use(auth);
 app.use(router);
-
 app.use(errorLogger);
-
 app.use(errors());
 
 app.use((req, res) => {
