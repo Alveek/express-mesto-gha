@@ -4,7 +4,7 @@ const {
   getUserByIdValidation,
   editProfileValidation,
   updateAvatarValidation,
-} = require('../validatioin');
+} = require('../validation');
 
 const {
   getUsers,

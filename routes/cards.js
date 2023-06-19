@@ -6,7 +6,7 @@ const {
   createCardValidation,
   deleteCardValidation,
   likeCardValidation,
-} = require('../validatioin');
+} = require('../validation');
 
 const {
   createCard,
